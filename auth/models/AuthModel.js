@@ -1,30 +1,11 @@
 const mongoose = require('mongoose');
 
 let employeeSchema = new mongoose.Schema({
-
-    fullName: {
-        type: String,
-        required: 'This field is required.'
-    },
-    email: {
-        type: String
-    },
-    password: {
-        type: String
-    },
-    role: {
-        type: String
-    },
-    confirmation: {
-        type: Boolean,
-        default: false
-    },
+    fullName: {type: String},
+    email: {type: String},
+    password: {type: String},
+    role: {type: String},
+    confirmation: {type: Boolean,default: false},
 });
-
-// Custom validation for email
-// employeeSchema.path('email').validate((val) => {
-//     emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-//     return emailRegex.test(val);
-// }, 'Invalid e-mail.');
 
 mongoose.model('User', employeeSchema);

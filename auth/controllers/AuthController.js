@@ -3,7 +3,8 @@
 // TODO  function confirmation for the email adresse 
 // TODO  function forget password to  send the verification to the email 
 // TODO function reset password to update password  after the email sended 
-
+// TODO fuctions to render pages
+// TODO function to logout
 const model = require('../models/AuthModel.js')
 const bcrypt = require('bcryptjs')
 const mongoose = require('mongoose')
@@ -35,7 +36,6 @@ function signUp(req, res) {
         .catch()
 }
 
-
 function signIn(req, res) {
     const { body } = req
     const inputPass = body.password
@@ -58,10 +58,8 @@ function signIn(req, res) {
             }
         }
     })
-    .catch(error => { res.send(error) })
+        .catch(error => { res.send(error) })
 }
-
-
 
 const confirmation = (req, res) => {
     console.log('confirmation')
@@ -72,7 +70,6 @@ const confirmation = (req, res) => {
         .then(res.redirect('/api/auth/login'))
 }
 
-
 const forgetPassword = (req, res) => {
     const { body } = req
     const email = body.email;
@@ -81,7 +78,6 @@ const forgetPassword = (req, res) => {
         .then((user) => {
             if (!user) { res.send('user not found with this email') }
             else {
-
                 ls('mailToken', email)
                 password_verification.forgetpassword()
                 res.send('visit email')
@@ -103,4 +99,22 @@ const resetPassword = (req, res) => {
             res.send(error)
         })
 }
-module.exports = { signUp, signIn, confirmation, forgetPassword, resetPassword }
+
+const renderLoginPage = (req, res) => { res.render('login') }
+const renderRegisterPage = (req, res) => { res.render('register') }
+const renderConfirmationPage = (req, res) => {
+    const token = req.params
+    res.render('confirmation', { token })
+}
+const Client = (req, res) => { res.send('Client Page ') }
+const Livreur = (req, res) => { res.send('Livreur Page') }
+const forgetPasswordPage = (req, res) => { res.render('forgotPassword') }
+const resetPasswordPage = (req, res) => {
+    const mailToken = req.params
+    res.render('resetPassword', { mailToken })
+}
+const logout = (req,res)=>{
+    ls.clear()
+    res.redirect('/api/auth/login')
+}
+module.exports = { signUp, signIn, confirmation, forgetPassword, resetPassword, renderLoginPage, renderRegisterPage, renderConfirmationPage, Client, Livreur, forgetPasswordPage, resetPasswordPage,logout}
