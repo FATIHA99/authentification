@@ -13,6 +13,10 @@ const jwt = require('jsonwebtoken');
 const ls = require('local-storage')
 const verf = require('../tools/email_verif')
 const password_verification = require('../tools/forgetPassword')
+const HandleError= require('../tools/ErrorHandling');
+const ErrorHandling = require('../tools/ErrorHandling');
+
+
 
 function signUp(req, res) {
     const { body } = req;
@@ -20,7 +24,7 @@ function signUp(req, res) {
     const hashPassword = bcrypt.hashSync(body.password, 10)
     User.findOne({ email: body.email })
         .then((e) => {
-            if (e) { res.json({ message: 'email already exist  ' }) }
+            if (e) { res.json({ message: 'email already exist' }) }
             else {
                 body.password = hashPassword;
                 User.create({ ...body })
@@ -36,7 +40,7 @@ function signUp(req, res) {
         .catch()
 }
 
-function signIn(req, res) {
+function signIn(req, res,next) {
     const { body } = req
     const inputPass = body.password
     User.findOne({ email: body.email }).then((e) => {
@@ -44,16 +48,21 @@ function signIn(req, res) {
         const password = bcrypt.compareSync(inputPass, e.password)
         if (!e) { res.json({ success: false, message: 'User not found.' }); }
         else if (e) {
-            if (!password) { res.json({ message: 'password wrong ' }) }
+            if (!password) { 
+                // res.json({ message: 'password wrong ' })
+                return next(new ErrorHandling('password wrong',400))
+             }
             else {
                 if (e.confirmation) {
-                    console.log('everything is right ')
                     const token = jwt.sign({ data }, process.env.SECRETWORD)
                     ls('token', token);
                     // res.redirect('http://localhost:8080/api/auth/'+data.role)   
                     res.render('home', { d: data })
+             
                 } else {
-                    res.send('verify your account ')
+                    // res.send('verify your account ')
+                    return next(new ErrorHandling('verify your account',500))
+
                 }
             }
         }
@@ -62,7 +71,6 @@ function signIn(req, res) {
 }
 
 const confirmation = (req, res) => {
-    console.log('confirmation')
     const { token } = req.params;
     const tkn = jwt.verify(token, process.env.SECRETWORD)
     req.data = tkn
